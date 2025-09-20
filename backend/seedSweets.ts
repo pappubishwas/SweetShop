@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Sweet, { ISweet } from "./src/models/Sweet"; // adjust path if needed
+import Sweet, { ISweet } from "./src/models/Sweet"; 
 
 const sweets: ISweet[] = [
   {
@@ -62,10 +62,11 @@ const sweets: ISweet[] = [
 
 const seedDB = async () => {
   try {
-    await mongoose.connect('mongodb+srv://pappuovi8:wmLtsp1a67Ch0diF@cluster0.aq4pok7.mongodb.net/sweetshop');
+    const uri = process.env.MONGO_URI || "";
+    await mongoose.connect(uri);
     console.log("MongoDB connected");
 
-    await Sweet.deleteMany({}); // clear existing data
+    await Sweet.deleteMany({}); 
     await Sweet.insertMany(sweets);
 
     console.log("Database seeded successfully!");
