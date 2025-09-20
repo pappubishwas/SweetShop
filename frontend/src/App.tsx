@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import Header from "./components/Header";
 import { setToken } from "./lib/api";
+import PurchasePage from "./pages/PurchasePage";
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const [token, setTokenState] = useState<string | null>(() => localStorage.getItem("token"));
@@ -34,21 +36,38 @@ function App() {
 
   return (
     <div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header token={token} user={user} onLogout={handleLogout} />
       <main className="p-6 max-w-6xl mx-auto">
         <Routes>
         
           <Route path="/" element={token ? <Dashboard token={token} user={user} /> : <Navigate to="/login" />} />
-
+          <Route path="/purchase/:id" element={token ? <PurchasePage /> : <Navigate to="/login" />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/register" element={<Register onRegister={handleLogin} />} />
 
-          <Route
-            path="/admin"
-            element={
-              token && user?.isAdmin ? <AdminPanel /> : <Navigate to="/login" />
-            }
-          />
+  <Route
+  path="/admin"
+  element={
+    token ? (
+      user?.isAdmin ? <AdminPanel /> : <Navigate to="/" />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
+
 
           
           <Route path="*" element={<Navigate to="/" />} />

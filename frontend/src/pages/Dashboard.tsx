@@ -25,15 +25,11 @@ export default function Dashboard({ token ,user }: { token: string | null,user:a
     setSweets(data);
   };
 
-  const purchase = async (id: string) => {
-    try {
-      await API.post(`/sweets/${id}/purchase`);
-      fetchAll();
-      alert("Purchased!");
-    } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed");
-    }
-  };
+
+  const purchase = (id: string) => {
+  nav(`/purchase/${id}`);
+};
+
 
   return (
     <div>

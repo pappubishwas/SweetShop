@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import API from "../lib/api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; 
 
 export default function Register({ onRegister }: { onRegister: (token: string,user:any)=>void }) {
   const [email, setEmail] = useState("");
@@ -14,10 +15,11 @@ export default function Register({ onRegister }: { onRegister: (token: string,us
     try {
       const { data } = await API.post("/auth/register", { email, password, name });
       onRegister(data.token, data.user);
-
+      toast.success("Registration Successful!");
       nav("/");
     } catch (error: any) {
       setErr(error?.response?.data?.message || "Register failed");
+      toast.error(error?.response?.data?.message || "Registration Failed!");
     }
   };
 

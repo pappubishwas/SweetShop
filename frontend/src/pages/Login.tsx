@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import API from "../lib/api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Login({ onLogin }: { onLogin: (token: string,user: any)=>void }) {
   const [email, setEmail] = useState("");
@@ -13,10 +14,10 @@ export default function Login({ onLogin }: { onLogin: (token: string,user: any)=
     try {
       const { data } = await API.post("/auth/login", { email, password });
       onLogin(data.token, data.user);
-
       nav("/");
     } catch (error: any) {
       setErr(error?.response?.data?.message || "Login failed");
+      toast.error(error?.response?.data?.message || "Login failed");
     }
   };
 
