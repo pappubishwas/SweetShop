@@ -2,5 +2,5 @@
 @tailwind components;
 @tailwind utilities;
 
-/* small styles for nice card layout */
+
 body { @apply bg-gradient-to-br from-yellow-50 to-pink-50; }

@@ -20,6 +20,7 @@ export default function Header({
           <Link to="/" className="hover:underline">
             Home
           </Link>
+          {/* Check Token avilable */}
           {!token ? (
             <>
               <Link
@@ -37,6 +38,7 @@ export default function Header({
             </>
           ) : (
             <>
+              {/* Check user admin or not */}
               {user?.isAdmin ? (
                 <Link
                   to="/admin"

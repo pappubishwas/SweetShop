@@ -3,7 +3,7 @@ import React from "react";
 export default function SweetCard({ sweet, onPurchase, disabled }: any) {
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col">
-      {/* Image / Placeholder */}
+      {/* Image  */}
       {sweet.imageUrl ? (
         <img
           src={sweet.imageUrl}
@@ -36,7 +36,9 @@ export default function SweetCard({ sweet, onPurchase, disabled }: any) {
             }`}
           ></span>
           <span className="text-xs text-gray-600">
-            {sweet.quantity > 0 ? `In stock: ${sweet.quantity}` : "Out of stock"}
+            {sweet.quantity > 0
+              ? `In stock: ${sweet.quantity}`
+              : "Out of stock"}
           </span>
         </div>
 

@@ -6,6 +6,7 @@ interface JwtPayload { id: string }
 
 export interface AuthRequest extends Request {
   user?: any;
+  file?: Express.Multer.File;
 }
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {

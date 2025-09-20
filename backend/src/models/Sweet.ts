@@ -6,6 +6,7 @@ export interface ISweet {
   price: number;
   quantity: number;
   description?: string;
+  imageUrl?:String;
   createdBy?: string;
 }
 
@@ -15,6 +16,7 @@ const SweetSchema = new Schema<ISweet>({
   price: { type: Number, required: true },
   quantity: { type: Number, required: true, default: 0 },
   description: { type: String },
+  imageUrl: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: "User" }
 }, { timestamps: true });
 

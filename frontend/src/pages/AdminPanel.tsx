@@ -10,12 +10,20 @@ export default function AdminPanel() {
     price: "",
     quantity: "",
     description: "",
+    image: null as File | null,
   });
 
-  // Track editing/restocking states
   const [editingId, setEditingId] = useState<string | null>(null);
   const [restockId, setRestockId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState({ name: "" });
+  const [editValue, setEditValue] = useState({
+    name: "",
+    category: "",
+    price: "",
+    quantity: "",
+    description: "",
+    image: null as File | null,
+  });
+
   const [restockValue, setRestockValue] = useState({ qty: "" });
 
   useEffect(() => {
@@ -29,34 +37,71 @@ export default function AdminPanel() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await API.post("/sweets", {
-      ...form,
-      price: Number(form.price),
-      quantity: Number(form.quantity),
+
+    const fd = new FormData();
+    fd.append("name", form.name);
+    fd.append("category", form.category);
+    fd.append("price", form.price);
+    fd.append("quantity", form.quantity);
+    fd.append("description", form.description);
+    if (form.image) fd.append("image", form.image);
+
+    await API.post("/sweets", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    setForm({ name: "", category: "", price: "", quantity: "", description: "" });
+
+    setForm({
+      name: "",
+      category: "",
+      price: "",
+      quantity: "",
+      description: "",
+      image: null,
+    });
     fetchAll();
   };
 
   const del = async (id: string) => {
     if (!confirm("Delete?")) return;
-    const {data}= await API.delete(`/sweets/${id}`);
-    if(data.message=="Deleted")
-    toast.success("Successfully Deleted!")
-  else 
-    toast.error(data.message);
+    const { data } = await API.delete(`/sweets/${id}`);
+    if (data.message == "Deleted") toast.success("Successfully Deleted!");
+    else toast.error(data.message);
     fetchAll();
   };
 
   const saveEdit = async (id: string) => {
-    await API.put(`/sweets/${id}`, { name: editValue.name });
+    const fd = new FormData();
+    fd.append("name", editValue.name);
+    fd.append("category", editValue.category);
+    fd.append("price", String(Number(editValue.price)));
+    fd.append("quantity", String(Number(editValue.quantity)));
+    fd.append("description", editValue.description);
+    if (editValue.image) fd.append("image", editValue.image);
+
+    await API.put(`/sweets/${id}`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    toast.success("Sweet updated!");
     setEditingId(null);
-    setEditValue({ name: "" });
+    setEditValue({
+      name: "",
+      category: "",
+      price: "",
+      quantity: "",
+      description: "",
+      image: null,
+    });
     fetchAll();
   };
 
   const saveRestock = async (id: string) => {
+    if (!restockValue.qty || Number(restockValue.qty) <= 0) {
+      toast.error("Enter a valid quantity");
+      return;
+    }
     await API.post(`/sweets/${id}/restock`, { qty: Number(restockValue.qty) });
+    toast.success("Stock updated!");
     setRestockId(null);
     setRestockValue({ qty: "" });
     fetchAll();
@@ -67,7 +112,10 @@ export default function AdminPanel() {
       <h2 className="text-2xl font-bold mb-4">Admin Panel</h2>
 
       {/* Add Sweet */}
-      <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+      <form
+        onSubmit={submit}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
+      >
         <input
           placeholder="Name"
           value={form.name}
@@ -100,7 +148,22 @@ export default function AdminPanel() {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="p-2 border rounded col-span-2"
         />
-        <button className="px-4 py-2 rounded bg-green-400 col-span-2">Add Sweet</button>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setForm({
+              ...form,
+              image: e.target.files ? e.target.files[0] : null,
+            })
+          }
+          className="p-2 border rounded col-span-2"
+        />
+
+        <button className="px-4 py-2 rounded bg-green-400 col-span-2">
+          Add Sweet
+        </button>
       </form>
 
       {/* List of sweets */}
@@ -112,32 +175,90 @@ export default function AdminPanel() {
           >
             <div>
               <div className="font-semibold">
-                {s.name} <span className="text-xs text-gray-500">({s.category})</span>
+                {s.name}{" "}
+                <span className="text-xs text-gray-500">({s.category})</span>
               </div>
-              <div className="text-sm">₹{s.price} • Stock: {s.quantity}</div>
+              <div className="text-sm">
+                ₹{s.price} • Stock: {s.quantity}
+              </div>
             </div>
 
             <div className="flex gap-2 flex-wrap">
+              {/* If editing button is clicked */}
               {editingId === s._id ? (
                 <>
-                  <input
-                    type="text"
-                    value={editValue.name}
-                    onChange={(e) => setEditValue({ name: e.target.value })}
-                    className="border p-1 rounded"
-                  />
-                  <button
-                    onClick={() => saveEdit(s._id)}
-                    className="px-2 py-1 bg-blue-400 rounded text-white"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="px-2 py-1 bg-gray-300 rounded"
-                  >
-                    Cancel
-                  </button>
+                  <div className="bg-white p-4 rounded shadow w-full">
+                    <input
+                      value={editValue.name}
+                      onChange={(e) =>
+                        setEditValue({ ...editValue, name: e.target.value })
+                      }
+                      placeholder="Name"
+                      className="p-2 border rounded w-full mb-2"
+                    />
+                    <input
+                      value={editValue.category}
+                      onChange={(e) =>
+                        setEditValue({ ...editValue, category: e.target.value })
+                      }
+                      placeholder="Category"
+                      className="p-2 border rounded w-full mb-2"
+                    />
+                    <input
+                      type="number"
+                      value={editValue.price}
+                      onChange={(e) =>
+                        setEditValue({ ...editValue, price: e.target.value })
+                      }
+                      placeholder="Price"
+                      className="p-2 border rounded w-full mb-2"
+                    />
+                    <input
+                      type="number"
+                      value={editValue.quantity}
+                      onChange={(e) =>
+                        setEditValue({ ...editValue, quantity: e.target.value })
+                      }
+                      placeholder="Quantity"
+                      className="p-2 border rounded w-full mb-2"
+                    />
+                    <textarea
+                      value={editValue.description}
+                      onChange={(e) =>
+                        setEditValue({
+                          ...editValue,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Description"
+                      className="p-2 border rounded w-full mb-2"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setEditValue({
+                          ...editValue,
+                          image: e.target.files ? e.target.files[0] : null,
+                        })
+                      }
+                      className="p-2 border rounded w-full mb-2"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => saveEdit(s._id)}
+                        className="px-3 py-1 bg-blue-500 text-white rounded"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="px-3 py-1 bg-gray-300 rounded"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
                 </>
               ) : restockId === s._id ? (
                 <>
@@ -165,12 +286,20 @@ export default function AdminPanel() {
                   <button
                     onClick={() => {
                       setEditingId(s._id);
-                      setEditValue({ name: s.name });
+                      setEditValue({
+                        name: s.name,
+                        category: s.category,
+                        price: String(s.price),
+                        quantity: String(s.quantity),
+                        description: s.description || "",
+                        image: null,
+                      });
                     }}
                     className="px-2 py-1 rounded bg-indigo-200"
                   >
                     Edit
                   </button>
+
                   <button
                     onClick={() => {
                       setRestockId(s._id);

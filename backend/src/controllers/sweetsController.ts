@@ -3,16 +3,28 @@ import Sweet from "../models/Sweet";
 import { AuthRequest } from "../middlewares/auth";
 import mongoose from "mongoose";
 
+
 export const createSweet = async (req: AuthRequest, res: Response) => {
   const { name, category, price, quantity, description } = req.body;
-  if (!name || !category || price == null) return res.status(400).json({ message: "Missing fields" });
+  const imageUrl = (req.file as any)?.path; 
 
   const sweet = await Sweet.create({
-    name, category, price, quantity: quantity || 0, description, createdBy: req.user._id
+    name, category, price, quantity, description, imageUrl, createdBy: req.user._id
   });
 
   res.status(201).json(sweet);
 };
+
+export const updateSweet = async (req: AuthRequest, res: Response) => {
+  const id = req.params.id;
+  const updateData: any = { ...req.body };
+  if (req.file) updateData.imageUrl = (req.file as any).path;
+
+  const sweet = await Sweet.findByIdAndUpdate(id, updateData, { new: true });
+  if (!sweet) return res.status(404).json({ message: "Not found" });
+  res.json(sweet);
+};
+
 
 export const listSweets = async (req: Request, res: Response) => {
   const sweets = await Sweet.find().sort({ createdAt: -1 });
@@ -30,13 +42,6 @@ export const searchSweets = async (req: Request, res: Response) => {
   res.json(results);
 };
 
-export const updateSweet = async (req: AuthRequest, res: Response) => {
-  const id = req.params.id;
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid id" });
-  const sweet = await Sweet.findByIdAndUpdate(id, req.body, { new: true });
-  if (!sweet) return res.status(404).json({ message: "Not found" });
-  res.json(sweet);
-};
 
 export const deleteSweet = async (req: AuthRequest, res: Response) => {
   const id = req.params.id;
