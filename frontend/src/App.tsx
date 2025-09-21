@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import { setToken } from "./lib/api";
 import PurchasePage from "./pages/PurchasePage";
 import { ToastContainer } from "react-toastify";
+import Footer from "./components/Footer";
 
 function App() {
   const [token, setTokenState] = useState<string | null>(() =>
@@ -91,6 +92,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
+      <Footer/>
     </div>
   );
 }
