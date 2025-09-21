@@ -52,7 +52,7 @@ function App() {
         theme="colored"
       />
       <Header token={token} user={user} onLogout={handleLogout} />
-      <main className="flex-grow p-6 max-w-6xl mx-auto">
+      <main className="flex-grow p-6 max-w-6xl w-full mx-auto">
         <Routes>
           <Route
             path="/"
