@@ -44,7 +44,7 @@ export default function Header({
                   to="/admin"
                   className="text-sm px-3 py-1 rounded bg-indigo-100"
                 >
-                  Admin
+                  Admin Panel
                 </Link>
               ) : (
                 <span className="text-sm font-medium text-gray-600">

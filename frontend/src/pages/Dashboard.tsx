@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
-import API from "../lib/api";
+import API, { setToken } from "../lib/api";
 import SweetCard from "../components/SweetCard";
-import { setToken } from "../lib/api";
 import { useNavigate } from "react-router-dom";
+import { Listbox } from "@headlessui/react";
+interface Sweet {
+  _id: string;
+  name: string;
+  category: string;
+  price: number;
+  quantity: number;
+  description?: string;
+  imageUrl?: String;
+  createdBy?: string;
+}
 
 export default function Dashboard({
   token,
@@ -11,8 +21,10 @@ export default function Dashboard({
   token: string | null;
   user: any;
 }) {
-  const [sweets, setSweets] = useState<any[]>([]);
+  const [sweets, setSweets] = useState<Sweet[]>([]);
   const [q, setQ] = useState("");
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -21,13 +33,20 @@ export default function Dashboard({
   }, [token]);
 
   const fetchAll = async () => {
-    const { data } = await API.get("/sweets");
+    const { data } = await API.get<Sweet[]>("/sweets");
     setSweets(data);
+
+    const uniqueCategories = Array.from(
+      new Set(data.map((s: Sweet) => s.category))
+    );
+    setCategories(uniqueCategories);
   };
 
-  const search = async (e: any) => {
+  const search = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data } = await API.get("/sweets/search", { params: { q } });
+    const { data } = await API.get<Sweet[]>("/sweets/search", {
+      params: { q, category: category || undefined },
+    });
     setSweets(data);
   };
 
@@ -37,28 +56,50 @@ export default function Dashboard({
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <form onSubmit={search} className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+        <form
+          onSubmit={search}
+          className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
+        >
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search sweets"
-            className="p-2 border rounded"
+            className="p-2 border rounded flex-1"
           />
-          <button className="px-3 py-1 rounded bg-pink-500 text-white">
+
+          <Listbox value={category} onChange={setCategory}>
+            <div className="relative w-full sm:w-48">
+              <Listbox.Button className="w-full p-2 border rounded bg-white text-left">
+                {category || "All Categories"}
+              </Listbox.Button>
+              <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded bg-white shadow-lg z-10">
+                <Listbox.Option value="">
+                  {({ active }) => (
+                    <div className={`p-2 ${active ? "bg-pink-100" : ""}`}>
+                      All Categories
+                    </div>
+                  )}
+                </Listbox.Option>
+                {categories.map((c) => (
+                  <Listbox.Option key={c} value={c}>
+                    {({ active }) => (
+                      <div className={`p-2 ${active ? "bg-pink-100" : ""}`}>
+                        {c}
+                      </div>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </div>
+          </Listbox>
+
+          <button className="px-3 py-2 rounded bg-pink-500 text-white sm:w-auto">
             Search
           </button>
         </form>
-        {user.isAdmin ? (
-          <button
-            onClick={() => nav("/admin")}
-            className="px-3 py-1 rounded bg-indigo-100"
-          >
-            Open Admin Panel
-          </button>
-        ) : (
-          <></>
-        )}
+
+
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

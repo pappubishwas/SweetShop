@@ -98,6 +98,9 @@ npm run dev
 A live demo is available here:
 👉 [Deployed App Link](https://sweet-shop-lilac.vercel.app/)
 
+## Login as Admin : 
+  * Email:admin@sweetshop.local
+  * Password: password
 ---
 
 ## 🤖 My AI Usage
