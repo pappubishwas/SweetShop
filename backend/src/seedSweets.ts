@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Sweet, { ISweet } from "./src/models/Sweet"; 
+import Sweet, { ISweet } from "./models/Sweet"; 
 
 const sweets: ISweet[] = [
   {
