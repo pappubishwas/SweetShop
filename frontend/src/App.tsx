@@ -38,7 +38,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -52,7 +52,7 @@ function App() {
         theme="colored"
       />
       <Header token={token} user={user} onLogout={handleLogout} />
-      <main className="p-6 max-w-6xl mx-auto">
+      <main className="flex-grow p-6 max-w-6xl mx-auto">
         <Routes>
           <Route
             path="/"
@@ -92,7 +92,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
