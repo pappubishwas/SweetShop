@@ -96,7 +96,7 @@ npm run dev
 ## 🌐 Deployment
 
 A live demo is available here:
-👉 [Deployed App Link](https://your-deployment-url.com)
+👉 [Deployed App Link](https://sweet-shop-lilac.vercel.app/)
 
 ---
 
